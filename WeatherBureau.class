@@ -1,0 +1,148 @@
+import java.util.*;
+
+//-------------------------------------------------------------------------
+/**
+ *  Weather service that keeps track of all the weather stations,
+ *
+ *  @author dwaldon
+ *  @version 2023.04.16
+ */
+public class WeatherBureau
+{
+    //~ Fields ................................................................
+    private Map<String, WeatherStation> bureau;
+
+    //~ Constructor ...........................................................
+    // ----------------------------------------------------------
+    /**
+     * Initializes a newly created WeatherBureau object.
+     */
+    public WeatherBureau()
+    {
+        super();
+        bureau = new HashMap<String, WeatherStation>();
+    }
+
+    //~ Methods ...............................................................
+    /**
+     * Single string representing a one-line daily summary
+     * 
+     * @param text String that is taken
+     */
+    public void recordDailySummary(String text)
+    {
+        // Scanner to that takes text to be used for array to find values
+        Scanner input = new Scanner(text);
+        // String array to hold all values in the summary
+        String[] summary = new String[9];
+        for ( int i = 0; i < summary.length; i++)
+        {
+            summary[i] = input.next();
+        }
+        // Double rainfall in pos 5 in array
+        double rainfall = Double.parseDouble(summary[5]);
+        // String stationID in pos 0 in array
+        String stationID = summary[0];
+        // String date at pos 4 in array
+        String date = summary[4];
+        // String array to get the month and split into days, month, year
+        String[] dateSplit = date.split("/");
+        int numMonth = Integer.parseInt(dateSplit[0]);
+
+        input.close();
+        if ( rainfall == -1 )
+        {
+            return;
+        }
+
+        if ( bureau.containsKey(stationID) )
+        {
+            bureau.get(stationID).recordDailyRain(numMonth, rainfall);
+        }
+        else
+        {
+            WeatherStation station = new WeatherStation(stationID);
+            bureau.put(stationID, station);
+            bureau.get(stationID).recordDailyRain(numMonth, rainfall);
+        }
+    }
+
+    /**
+     * Record all of the daily summaries from the input source
+     * 
+     * @param input represents input data source
+     */
+    public void recordDailySummaries(Scanner input)
+    {
+        while (input.hasNextLine())
+        {
+            recordDailySummary(input.nextLine());
+        }
+    }
+
+    /**
+     * Return the weather station object with given weather station ID
+     * 
+     * @param identifier station ID
+     * 
+     * @return WeatherStation for the given ID
+     */
+    public WeatherStation getStation(String identifier)
+    {   
+        return bureau.get(identifier);
+    }
+
+    /**
+     * Returns the station with the lowest average rainfall for 
+     * the specified month
+     * 
+     * @param month for the month number
+     * 
+     * @return WeatherStation for the given ID
+     */
+    public WeatherStation lowestStation(int month)
+    {
+        if (bureau.isEmpty())
+        {
+            return null;
+        }
+        double lowMonth = Double.MAX_VALUE;
+        String minStation = "";
+        for (String identifier : bureau.keySet())
+        {
+            double avgRain = bureau.get(identifier).getAvgForMonth(month);
+            if ( avgRain < lowMonth && avgRain != -1)
+            {
+                minStation = identifier;
+                lowMonth = bureau.get(minStation).getAvgForMonth(month);
+            }
+        }
+        return getStation(minStation);
+    }
+
+    /**
+     * Return the weather station that has the lowest average rainfall 
+     * recorded for any month.
+     * 
+     * @return WeatherStation with lowest average rainfall
+     */
+    public WeatherStation lowestStation()
+    {
+        if (bureau.isEmpty())
+        {
+            return null;
+        }
+        String min = "";
+        double lowMonth = Double.MAX_VALUE;
+        for (String values : bureau.keySet())
+        {
+            double avgRain = bureau.get(values).getLowestMonth();
+            if ( avgRain < lowMonth && avgRain != -1 )
+            {
+                lowMonth = avgRain;
+                min = values;
+            }
+        }
+        return getStation(min);
+    }
+}

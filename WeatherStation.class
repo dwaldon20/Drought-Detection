@@ -1,0 +1,125 @@
+//import student.IOHelper;
+//import java.util.Scanner;
+//-------------------------------------------------------------------------
+/**
+ *  Basic statistics collected by one weather observation station.
+ *
+ *  @author dwaldon
+ *  @version 2023.04.16
+ */
+public class WeatherStation
+{
+    //~ Fields ................................................................
+    private double[] monthlyRainTotals;
+    private int[] daysRecorded;
+    private String identifier;
+
+    //~ Constructor ...........................................................
+    // ----------------------------------------------------------
+    /**
+     * Initializes a newly created WeatherStation object.
+     * 
+     * @param identifier for the id of the weather station
+     */
+    public WeatherStation(String identifier)
+    {
+        super();
+        // 12 monthly rain totals representing sum of precipitation nums
+        // for all days reported in the month.
+        monthlyRainTotals = new double[13];
+        // 12 monthly counts representing number of daily records 
+        // processed in that month.
+        daysRecorded = new int[13];
+        this.identifier = identifier;
+    }
+
+    //~ Methods ...............................................................
+    /**
+     * Return weather station ID
+     * 
+     * @return String for weather station ID
+     */
+    public String getId()
+    {
+        return this.identifier;
+    }
+
+    /**
+     * Record information from one daily summary line in data file
+     * 
+     * @param month for the month
+     * 
+     * @param rainfall for the amount of rainfall
+     */
+    public void recordDailyRain(int month, double rainfall)
+    {
+        daysRecorded[month]++;
+        monthlyRainTotals[month] += rainfall;
+    }
+
+    /**
+     * Return the amount of recoreded days in the month
+     * 
+     * @param month for the month to get the days from
+     * 
+     * @return int for the days recorded
+     */
+    public int getCountForMonth(int month)
+    {
+        return daysRecorded[month];
+    }
+
+    /**
+     * Returns the average daily rainfll for the specified month
+     * 
+     * @param month total rainfall reported daily values for this month
+     * 
+     * @return double for the average of the specified month
+     */
+    public double getAvgForMonth(int month)
+    {
+        double avgForMonth = monthlyRainTotals[month] / getCountForMonth(month);
+
+        if ( daysRecorded[month] == 0)
+        {
+            return -1;
+        }
+        return avgForMonth;
+    }
+
+    /**
+     * Return the number of the month indicating the month that
+     * had the lowest average rainfall reported at this station
+     * 
+     * @return int the number of the month
+     */
+    public int getLowestMonth()
+    {
+        int count = 0;
+        for ( int i = 1; i < monthlyRainTotals.length; i++)
+        {
+            if ( monthlyRainTotals[i] != 0 )
+            {
+                count = 1;
+            }
+        }
+        
+        if (count == 0)
+        {
+            return 1;
+        }
+        
+        int lowestMonth = 1;
+        double lowestAvg = Double.MAX_VALUE;
+        for (int i = 1; i < daysRecorded.length; i++)
+        {   
+            double avg = getAvgForMonth(i);
+            if ( avg < lowestAvg && avg != -1 )
+            {
+                lowestAvg = avg;
+                lowestMonth = i;
+            }
+        }
+        return lowestMonth;
+    }
+}
